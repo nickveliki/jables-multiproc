@@ -1,0 +1,26 @@
+{
+  "name": "jables-multiproc",
+  "version": "0.0.1",
+  "description": "run multiple jables databases in one app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nickveliki/jables-multiproc.git"
+  },
+  "keywords": [
+    "jables",
+    "database",
+    "multiple",
+    "local",
+    "instances"
+  ],
+  "author": "nickveliki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nickveliki/jables-multiproc/issues"
+  },
+  "homepage": "https://github.com/nickveliki/jables-multiproc#readme"
+}
