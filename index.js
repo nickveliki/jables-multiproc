@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const activeDBs = [];
-const setup = ({location, secDatFileLoc, updateInterval=60, cb})=>new Promise((res, rej)=>{
+const setup = ({location, secDatFileLoc, updateInterval=60})=>new Promise((res, rej)=>{
     const dbfind = searchActive(location)
     if(activeDBs.length==0||activeDBs[dbfind]["location"]!==location){
         let good = true;
@@ -27,7 +27,9 @@ const setup = ({location, secDatFileLoc, updateInterval=60, cb})=>new Promise((r
         if (good){
             const cpr = cprfork("./src/jablesSubprocWrapper", [], {stdio:["ipc"]});
         cpr.on("message", (message)=>{
-            getTargetJObj(location).cb(message.message);
+            const target = getTargetJObj(location);
+            target.jobs[message.jobID][message.rtype](message.message);
+            target.jobs[message.jobID] = undefined;
         })
         cpr.on("error", (err)=>{
             console.log(err);
@@ -40,20 +42,16 @@ const setup = ({location, secDatFileLoc, updateInterval=60, cb})=>new Promise((r
             console.log(code, signal);
         })
         if (activeDBs.length==0||dbfind==activeDBs.length-1&&location>activeDBs[dbfind]["location"]){
-            activeDBs.push({location, cpr, cb});
+            activeDBs.push({location, cpr, jobs:[]});
         }else if (dbfind==0&&location<activeDBs[dbfind]["location"]){
-            activeDBs.shift({location, cpr, cb});
+            activeDBs.shift({location, cpr, jobs:[]});
         }else {
-            activeDBs.splice(dbfind+1, 0, {location, cpr, cb})
+            activeDBs.splice(dbfind+1, 0, {location, cpr, jobs:[]});
         }
         
         const secDat = JSON.parse(fs.readFileSync(secDatFileLoc).toString());
         
-        if(cpr.send({functionName: "setup", location, args:[location, {iv: secDat.iv, key: secDat.key}, updateInterval]})){
-            res("jables initiated at " + location);
-        }else{
-            rej({error: 500, message:"IPC"});
-        }
+        getMiscFunc({location, functionName:"setup", args:[location, {iv: secDat.iv, key: secDat.key}, updateInterval]});
     }
         
         
@@ -64,7 +62,6 @@ const setup = ({location, secDatFileLoc, updateInterval=60, cb})=>new Promise((r
 const getTargetJObj = (location)=>{
     const rs = activeDBs[searchActive(location)];
     if (rs.location === location){
-        console.log("found", rs.cb.toString())
         return rs;
     }
     return undefined;
@@ -82,34 +79,39 @@ const searchActive = (location)=>{
         }
         return activeDBs.indexOf(search[0]);
 }
-const getDefinitions = ({location, definition, strict})=>{
-    getMiscFunc({location, functionName:"definitions", args:[{definition, strict}]});
-}
-const getDefinition = ({location, definition})=>{
-    getMiscFunc({location, functionName:"getDefinition", args:[definition]});
-}
-const getDefinitionProperties = ({location, definition})=>{
-    getMiscFunc({location, functionName:"getDefinitionProperties", args:[definition]});
-}
-const getDefinitionProperty = ({location, definition})=>{
-    getMiscFunc({location, functionName:"getDefinitionProperty", args:[definition]});
-}
-const getTwig = ({location, definition})=>{
-    getMiscFunc({location, functionName:"getTwig", args:[definition]});
-}
-const getTwigBFD = ({location, definition})=>{
-    getMiscFunc({location, functionName:"getTwigBFD", args:[definition]});
-}
-const writeDefinition = ({location, definition})=>{
-    getMiscFunc({location, functionName:"writeDefinition", args:[definition]})
-}
-const deleteDefinition = ({location, definition})=>{
-    getMiscFunc({location, functionName:"deleteDefinition", args:[definition]})
-}
-const getMiscFunc = ({location, args, functionName})=>{
+const getDefinitions = ({location, definition, strict})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"definitions", args:[{definition, strict}], callbacks:{resolve:res, reject:rej}});
+});
+const getDefinition = ({location, definition})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"getDefinition", args:[definition], callbacks:{resolve:res, reject:rej}});
+})
+const getDefinitionProperties = ({location, definition})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"getDefinitionProperties", args:[definition], callbacks:{resolve:res, reject:rej}});
+})
+const getDefinitionProperty = ({location, definition})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"getDefinitionProperty", args:[definition], callbacks:{resolve:res, reject:rej}});
+})
+const getTwig = ({location, definition})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"getTwig", args:[definition], callbacks:{resolve:res, reject:rej}});
+})
+const getTwigBFD = ({location, definition})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"getTwigBFD", args:[definition], callbacks:{resolve:res, reject:rej}});
+})
+const writeDefinition = ({location, definition})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"writeDefinition", args:[definition], callbacks:{resolve:res, reject:rej}})
+})
+const deleteDefinition = ({location, definition})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"deleteDefinition", args:[definition], callbacks:{resolve:res, reject:rej}})
+})
+const getMiscFunc = ({location, args, functionName, callbacks={sync:console.log, resolve:console.log, reject:console.log, error:console.log}})=>{
     const target = getTargetJObj(location);
     if (target){
-        return target.cpr.send({location, functionName, args})
+        let jobID = 0;
+        while(target.jobs[jobID]!=undefined){
+            jobID++;
+        }
+        target.jobs[jobID]=callbacks;
+        return target.cpr.send({location, functionName, args, jobID})
     }
     return false;
 }
