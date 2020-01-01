@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/nickveliki/jables-multiproc/issues"
   },
-  "homepage": "https://github.com/nickveliki/jables-multiproc#readme"
+  "homepage": "https://github.com/nickveliki/jables-multiproc#readme",
+  "dependencies": {
+    "jables": "git+https://github.com/nickveliki/Jabels.git"
+  }
 }
