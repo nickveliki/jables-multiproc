@@ -50,7 +50,12 @@ const setup = ({location, secDatFileLoc, updateInterval=60})=>new Promise((res, 
         }
         
         const secDat = JSON.parse(fs.readFileSync(secDatFileLoc).toString());
-        
+        if (secDat.key.data){
+            secDat.key=secDat.key.data;
+        }
+        if (secDat.iv.data){
+            secDat.iv=secDat.iv.data;
+        }
         getMiscFunc({location, functionName:"setup", args:[location, {iv: secDat.iv, key: secDat.key}, updateInterval]});
     }
         
