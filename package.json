@@ -1,6 +1,6 @@
 {
   "name": "jables-multiproc",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "run multiple jables databases in one app",
   "main": "index.js",
   "scripts": {

@@ -25,7 +25,7 @@ const setup = ({location, secDatFileLoc, updateInterval=60})=>new Promise((res, 
             }
         }
         if (good){
-            const cpr = cprfork("./src/jablesSubprocWrapper", [], {stdio:["ipc"]});
+            const cpr = cprfork(".node_modules/jables-subproc/src/jablesSubprocWrapper", [], {stdio:["ipc"]});
         cpr.on("message", (message)=>{
             const target = getTargetJObj(location);
             target.jobs[message.jobID][message.rtype](message.message);
