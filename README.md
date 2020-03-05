@@ -6,7 +6,7 @@ Jables Multiproc runs one or more Jables instances in different threads. These a
 
 args: object with keys: location, secDatFileLoc
 
-instantiates a new instance of a Jables Database at location encrypted with data from secDatFileLoc. If no file exists at SecDatFileLoc, Jables will automatically generate a key an iv for encryption, save them at the secDatFileLoc, and use them in subsequent operations
+instantiates a new instance of a Jables Database at location encrypted with data from secDatFileLoc. If no file exists at SecDatFileLoc, Jables will automatically generate a key an iv for encryption, save them at the secDatFileLoc, and use them in subsequent operations. Make sure you have started the program with the necessary permissions to write the files, or define locations that doesn't require such permissions (eg '/etc/location')
 
 
 ### async function: writeDefinition
