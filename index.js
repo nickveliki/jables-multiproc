@@ -105,8 +105,8 @@ const getTwigBFD = ({location, definition})=>new Promise((res, rej)=>{
 const writeDefinition = ({location, definition})=>new Promise((res, rej)=>{
     getMiscFunc({location, functionName:"writeDefinition", args:[definition], callbacks:{resolve:res, reject:rej}})
 })
-const deleteDefinition = ({location, definition})=>new Promise((res, rej)=>{
-    getMiscFunc({location, functionName:"deleteDefinition", args:[definition], callbacks:{resolve:res, reject:rej}})
+const deleteVersion = ({location, definition})=>new Promise((res, rej)=>{
+    getMiscFunc({location, functionName:"deleteVersion", args:[definition], callbacks:{resolve:res, reject:rej}})
 })
 const getMiscFunc = ({location, args, functionName, callbacks={sync:console.log, resolve:console.log, reject:console.log, error:console.log}})=>{
     const target = getTargetJObj(location);
@@ -129,6 +129,6 @@ module.exports = {
     getTwig,
     getTwigBFD,
     writeDefinition,
-    deleteDefinition,
+    deleteVersion,
     getMiscFunc
 }
