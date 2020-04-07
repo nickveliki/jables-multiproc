@@ -18,13 +18,22 @@ const setup = ({location, secDatFileLoc, updateInterval=60})=>new Promise((res, 
                 for(let i = 1; i < sdfp.length; i++){
                     pathnow = path.join(pathnow, sdfp[i]);
                     if (!fs.existsSync(pathnow)){
+                        try{
                         fs.mkdirSync(pathnow);
+                        }catch(e){
+                        rej({error:500, message:e||"error creating secdat file path"});
+                        }
                     }
                 }
+                try{
                 fs.writeFileSync(secDatFileLoc, JSON.stringify(secdat));
+                }catch(e){
+                rej({error:500, message: e||"error writing secdat file"})   
+                }
             }
         }
         if (good){
+            console.log("ssecurity is assured");
             const cpr = cprfork("./node_modules/jables-multiproc/src/jablesSubprocWrapper", [], {stdio:["ipc"]});
         cpr.on("message", (message)=>{
             const target = getTargetJObj(location);
@@ -56,7 +65,7 @@ const setup = ({location, secDatFileLoc, updateInterval=60})=>new Promise((res, 
         if (secDat.iv.data){
             secDat.iv=secDat.iv.data;
         }
-        getMiscFunc({location, functionName:"setup", args:[location, {iv: secDat.iv, key: secDat.key}, updateInterval], callbacks:{sync: res, resolve: res, reject: rej}});
+        getMiscFunc({location, functionName:"setup", args:[location, {iv: secDat.iv, key: secDat.key}, updateInterval], callbacks:{sync: res, resolve: res, reject: rej, error: rej}});
     }
         
         
