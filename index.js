@@ -56,7 +56,7 @@ const setup = ({location, secDatFileLoc, updateInterval=60})=>new Promise((res, 
         if (secDat.iv.data){
             secDat.iv=secDat.iv.data;
         }
-        getMiscFunc({location, functionName:"setup", args:[location, {iv: secDat.iv, key: secDat.key}, updateInterval]});
+        getMiscFunc({location, functionName:"setup", args:[location, {iv: secDat.iv, key: secDat.key}, updateInterval]}).then(res, rej);
     }
         
         
