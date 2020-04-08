@@ -9,7 +9,7 @@ const setup = ({location, secDatFileLoc, updateInterval=60})=>new Promise((res, 
         let good = true;
         if (!fs.existsSync(secDatFileLoc)){
             const secdat = {key: crypto.randomBytes(16).toString("base64"), iv:crypto.randomBytes(16).toString("base64")};
-            const sdfp = path.dirname(path.resolve(secDatFileLoc)).split(path.sep);
+            const sdfp = path.dirname(path.resolve(secDatFileLoc)).split(path.sep).map((item)=>(require("os").type().toLowerCase().includes("win")?"":path.sep)+item);
             if (!fs.existsSync(sdfp[0])){
                 good = false;
                 rej({error: 404, messae:"Drive " + sdfp[0] + " doesn't exist"})
